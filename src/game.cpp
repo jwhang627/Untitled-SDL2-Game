@@ -8,12 +8,18 @@ float currentTime = utils::hireTimeInSeconds();
 int startTicks = 0;
 SDL_Event event;
 
+Mix_Chunk* starting_music = NULL;
+
 Game::Game(const char* p_title, int p_x, int p_y, int p_w, int p_h, bool fullscreen):m_pWindow(NULL),m_pRenderer(NULL){
 
 	int flags = 0;
 
 	if (fullscreen){
 		flags = SDL_WINDOW_FULLSCREEN;
+	}
+
+	if (SDL_Init(SDL_INIT_EVERYTHING) < 0){
+		std::cout << "> SDL init failed (game.cpp). Error: " << SDL_GetError() << std::endl;
 	}
 
 	m_pWindow = SDL_CreateWindow(p_title,p_x,p_y,p_w,p_h,flags);
@@ -51,9 +57,20 @@ Game::Game(const char* p_title, int p_x, int p_y, int p_w, int p_h, bool fullscr
 		std::cout << "> Window failed to initialize (game.cpp). Error: " << SDL_GetError() << std::endl;
 	}
 
+	// testing if the audio works
+	if (Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,2048) < 0){
+		std::cout << "> SDL_mixer could not initialize (game.cpp). SDL_mixer Error: " << Mix_GetError() << std::endl;
+	}
+
 	m_pRenderer = SDL_CreateRenderer(m_pWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	std::cout << "> Init success! (game.cpp)" << std::endl;
+
+	starting_music = Mix_LoadWAV("res/dev/descending_craft-Sonidor.wav");
+
+	if (starting_music == NULL){
+		std::cout << "Failed to load starting sound effect (game.cpp). SDL_mixer Error:" << Mix_GetError() << std::endl;
+	}
 
 	m_bRunning = true;
 }
@@ -125,8 +142,10 @@ void Game::clearScreen(){
 
 void Game::clean(){
 	std::cout << "> Cleaning game. (game.cpp)" << std::endl;
+	Mix_FreeChunk(starting_music);
 	SDL_DestroyWindow(m_pWindow);
 	SDL_DestroyRenderer(m_pRenderer);
+	Mix_Quit();
 	SDL_Quit();
 }
 
