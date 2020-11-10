@@ -1,0 +1,17 @@
+Note to self
+
+Game:
+- init()
+- render()
+- update()
+- handleEvents()
+- clean()
+
+Game Object:
+- name (char*)
+- texture file path (char*)
+- size w (int)
+- size h (int)
+- position x (int)
+- position y (int)
+- type (char*)
